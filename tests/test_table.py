@@ -27,6 +27,26 @@ class TableTests(unittest.TestCase):
     def test_has_column(self):
         self.assertIn("col1", self.t)
 
+    def test_nulls(self):
+        t = Table(["a", "b"], [[None, "None"], ["NA", "c"]])
+        self.assertEqual(t.get("a"), [None, None])
+        self.assertEqual(t.get("b"), [None, "c"])
+
+    def test_from_csv(self):
+        t = Table.from_csv(["a,b", "1,2", "NA,3"])
+        self.assertEqual(t.get("a"), ["1", None])
+        self.assertEqual(t.get("b"), ["2", "3"])
+
+    def test_from_csv_nulls(self):
+        t = Table.from_csv(["a,b", "1,2", "NA,3"], null_values = ["3"])
+        self.assertEqual(t.get("a"), ["1", "NA"])
+        self.assertEqual(t.get("b"), ["2", None])
+
+    def test_from_tsv(self):
+        t = Table.from_csv(["a\tb", "1\t2", "NA\t3"], delimiter="\t")
+        self.assertEqual(t.get("a"), ["1", None])
+        self.assertEqual(t.get("b"), ["2", "3"])
+
     def test_columns_named(self):
         req = columns_named(["col0"])
         res = req.check(self.t)
