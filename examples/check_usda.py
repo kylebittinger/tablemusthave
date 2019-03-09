@@ -1,5 +1,6 @@
 #import tablemusthave
 from tablemusthave import *
+from pathlib import Path
 
 chop_mandatory = [
         "SampleID", "SampleType", "reverse_barcode_plate",
@@ -20,6 +21,7 @@ specification = MustHave(
         "forward_barcode_location", "forward_barcode_plate",
     ]),
     values_matching("forward_barcode_location", "^[A-H][0-9]{2}$"),
+    some_value_if_another_filled("SubjectID", "HostSpecies"),
     )
 specification.extend(some_value(c) for c in chop_mandatory)
 
@@ -27,7 +29,8 @@ for d in specification.descriptions():
     print(d)
 print()
 
-with open('usda21.csv', newline='') as f:
+csv_fp = Path(__file__).resolve().parent / "usda21.csv"
+with open(csv_fp, newline='') as f:
     t = Table.from_csv(f)
 
 for req, res in specification.check(t):
