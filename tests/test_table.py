@@ -47,6 +47,10 @@ class TableTests(unittest.TestCase):
         self.assertEqual(t.get("a"), ["1", None])
         self.assertEqual(t.get("b"), ["2", "3"])
 
+class MustHaveTests(unittest.TestCase):
+    def setUp(self):
+        self.t = Table(table1_cols, table1_vals)
+
     def test_columns_named(self):
         req = columns_named(["col0"])
         res = req.check(self.t)
