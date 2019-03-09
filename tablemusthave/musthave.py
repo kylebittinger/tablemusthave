@@ -61,38 +61,29 @@ class values_in_set:
         return must_have_result(not_allowed=not_allowed)
 
 class some_value:
-    def __init__(self, colname):
-        self.colname = colname
+    def __init__(self, *colnames):
+        self.colnames = list(colnames)
+        assert(len(self.colnames) >= 1)
 
     def description(self):
-        desc = "Values of '{0}' must not be missing or empty."
-        return desc.format(self.colname)
+        if len(self.colnames) == 1:
+            desc = "Values of '{0}' must not be missing or empty."
+            return desc.format(self.colnames[0])
+        elif len(self.colnames) == 2:
+            desc = "Must have '{0}' filled in when '{1}' is filled in."
+            return desc.format(self.colnames[1], self.colnames[0])
+        else:
+            desc = "Must have '{0}' filled in when {1} are filled in."
+            return desc.format(self.colnames[-1], self.colnames[:-1])
 
     def check(self, t):
-        if self.colname not in t:
-            return DoesntApply(self.colname)
-        vals = t.get(self.colname)
-        idxs = [idx for idx, val in enumerate(vals) if not val]
-        return must_have_result(idxs=idxs)
-
-class some_value_if_another_filled:
-    def __init__(self, colname_if, colname_then):
-        self.colname_if = colname_if
-        self.colname_then = colname_then
-
-    def description(self):
-        desc = "Must have '{0}' filled in when '{1}' is filled in."
-        return desc.format(self.colname_if, self.colname_then)
-
-    def check(self, t):
-        colnames = [self.colname_if, self.colname_then]
-        missing = [c for c in colnames if c not in t]
+        missing = [c for c in self.colnames if c not in t]
         if missing:
             return DoesntApply(*missing)
-        vals = zip(t.get(self.colname_if), t.get(self.colname_then))
+        vals = zip(*(t.get(c) for c in self.colnames))
         idxs = [
-            idx for idx, (val_if, val_then) in enumerate(vals)
-            if val_if and (not val_then)]
+            idx for idx, vs in enumerate(vals)
+            if all(vs[:-1]) and (not vs[-1])]
         return must_have_result(idxs=idxs)
 
 class values_matching:

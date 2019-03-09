@@ -74,13 +74,13 @@ class TableTests(unittest.TestCase):
 
     def test_some_value_if_another_filled(self):
         # If column 2 is filled in, then column 0 is filled in; True
-        req = some_value_if_another_filled("col2", "col0")
+        req = some_value("col2", "col0")
         res = req.check(self.t)
         self.assertTrue(res.success)
 
     def test_some_value_if_another_filled_fail(self):
         # If column 0 is filled in, then column 2 is filled in; False
-        req = some_value_if_another_filled("col0", "col2")
+        req = some_value("col0", "col2")
         res = req.check(self.t)
         self.assertFalse(res.success)
         self.assertEqual(res.idxs, [3])
@@ -121,7 +121,7 @@ class TableTests(unittest.TestCase):
         reqs = [
             values_in_set("colz", ["a"]),
             some_value("colz"),
-            some_value_if_another_filled("colz", "col0"),
+            some_value("colz", "col0"),
             values_matching("colz", "abc"),
             unique_values("colz"),
             unique_values_together(("colz", "col0")),
