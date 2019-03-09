@@ -104,15 +104,15 @@ class TableTests(unittest.TestCase):
         req = unique_values("col3")
         res = req.check(self.t)
         self.assertFalse(res.success)
-        self.assertEqual(res.repeated, [("m", 2)])
+        self.assertEqual(res.repeated, [(("m", ), 2)])
     
     def test_unique_values_together(self):
-        req = unique_values_together(("col0", "col1"))
+        req = unique_values("col0", "col1")
         res = req.check(self.t)
         self.assertTrue(res.success)
 
     def test_unique_values_together_fail(self):
-        req = unique_values_together(("col3", "col4"))
+        req = unique_values("col3", "col4")
         res = req.check(self.t)
         self.assertFalse(res.success)
         self.assertEqual(res.repeated, [(("m", "r"), 2)])
@@ -124,7 +124,7 @@ class TableTests(unittest.TestCase):
             some_value("colz", "col0"),
             values_matching("colz", "abc"),
             unique_values("colz"),
-            unique_values_together(("colz", "col0")),
+            unique_values("colz", "col0"),
             ]
         for req in reqs:
             res = req.check(self.t)

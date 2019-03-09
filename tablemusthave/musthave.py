@@ -103,34 +103,24 @@ class values_matching:
         return must_have_result(not_matching=not_matching)
 
 class unique_values:
-    def __init__(self, colname):
-        self.colname = colname
-
-    def description(self):
-        desc = "Values of '{0}' must be unique."
-        return desc.format(self.colname)
-
-    def check(self, t):
-        if self.colname not in t:
-            return DoesntApply(self.colname)
-        vals = [v for v in t.get(self.colname) if v]
-        value_cts = collections.Counter(vals)
-        repeated = [(v, n) for v, n in value_cts.items() if n > 1]
-        return must_have_result(repeated=repeated)
-
-class unique_values_together:
-    def __init__(self, colnames):
+    def __init__(self, *colnames):
         self.colnames = list(colnames)
+        assert(len(self.colnames) >= 1)
 
     def description(self):
-        desc = "Values of {0} must be unique together."
-        return desc.format(self.colnames)
+        if len(self.colnames) == 1:
+            desc = "Values of '{0}' must be unique."
+            return desc.format(self.colnames[0])
+        else:
+            desc = "Values of {0} must be unique together."
+            return desc.format(self.colnames)
 
     def check(self, t):
         missing = [c for c in self.colnames if c not in t]
         if missing:
             return DoesntApply(*missing)
         vals = zip(*(t.get(c) for c in self.colnames))
+        vals = [v for v in vals if any(v)]
         value_cts = collections.Counter(vals)
         repeated = [(v, n) for v, n in value_cts.items() if n > 1]
         return must_have_result(repeated=repeated)
