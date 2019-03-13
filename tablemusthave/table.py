@@ -15,10 +15,18 @@ class Table:
         values_by_column = list(
             map(list, itertools.zip_longest(*values_by_row)))
 
-        assert(all(is_stringy(c, False) for c in colnames))
+        if not all(is_stringy(c, False) for c in colnames):
+            msg = "Expected column names to be strings. Saw {0}"
+            raise TypeError(msg.format(colnames))
         for vals in values_by_column:
-            assert(all(is_stringy(v, True) for v in vals))
-        assert(len(values_by_column) == len(colnames))
+            if not all(is_stringy(v, True) for v in vals):
+                msg = "Expected table values to be strings or None. Saw {0}"
+                raise TypeError(msg.format(vals))
+        if not (len(values_by_column) == len(colnames)):
+            msg = (
+                "Expected number of column names to equal number of columns"
+                "of values. Saw {0} column names and {1} columns of values.")
+            raise ValueError(msg.format(len(colnames), len(values_by_column)))
 
         self.data = {}
         for colname, vs in zip(colnames, values_by_column):
