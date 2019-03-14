@@ -60,7 +60,7 @@ class values_in_set:
         not_allowed = [v for v in vals if v not in self.allowed]
         return must_have_result(not_allowed=not_allowed)
 
-class some_value:
+class some_value_for:
     def __init__(self, *colnames):
         self.colnames = list(colnames)
         assert(len(self.colnames) >= 1)
@@ -102,7 +102,7 @@ class values_matching:
         not_matching = [v for v in vals if not matching(self.pattern, v)]
         return must_have_result(not_matching=not_matching)
 
-class unique_values:
+class unique_values_for:
     def __init__(self, *colnames):
         self.colnames = list(colnames)
         assert(len(self.colnames) >= 1)

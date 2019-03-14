@@ -14,16 +14,16 @@ specification = MustHave(
     columns_matching("^[A-Za-z]"),
     values_matching("SampleID", "^[0-9A-Za-z.]+$"),
     values_matching("SampleID", "^[A-Za-z]"),
-    unique_values("SampleID"),
+    unique_values_for("SampleID"),
     values_matching("reverse_barcode_location", "^[A-H][0-9]{2}$"),
-    unique_values(
+    unique_values_for(
         "reverse_barcode_location", "reverse_barcode_plate",
         "forward_barcode_location", "forward_barcode_plate",
     ),
     values_matching("forward_barcode_location", "^[A-H][0-9]{2}$"),
-    some_value("SubjectID", "HostSpecies"),
+    some_value_for("SubjectID", "HostSpecies"),
     )
-specification.extend(some_value(c) for c in chop_mandatory)
+specification.extend(some_value_for(c) for c in chop_mandatory)
 
 for d in specification.descriptions():
     print(d)

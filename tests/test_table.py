@@ -86,25 +86,25 @@ class MustHaveTests(unittest.TestCase):
         self.assertEqual(res.not_allowed, ["g"])
 
     def test_some_value(self):
-        req = some_value("col0")
+        req = some_value_for("col0")
         res = req.check(self.t)
         self.assertTrue(res.success)
 
     def test_some_value_fail(self):
-        req = some_value("col1")
+        req = some_value_for("col1")
         res = req.check(self.t)
         self.assertFalse(res.success)
         self.assertEqual(res.idxs, [2])
 
     def test_some_value_if_another_filled(self):
         # If column 2 is filled in, then column 0 is filled in; True
-        req = some_value("col2", "col0")
+        req = some_value_for("col2", "col0")
         res = req.check(self.t)
         self.assertTrue(res.success)
 
     def test_some_value_if_another_filled_fail(self):
         # If column 0 is filled in, then column 2 is filled in; False
-        req = some_value("col0", "col2")
+        req = some_value_for("col0", "col2")
         res = req.check(self.t)
         self.assertFalse(res.success)
         self.assertEqual(res.idxs, [3])
@@ -120,23 +120,23 @@ class MustHaveTests(unittest.TestCase):
         self.assertEqual(res.not_matching, ["h"])
 
     def test_unique_values(self):
-        req = unique_values("col1")
+        req = unique_values_for("col1")
         res = req.check(self.t)
         self.assertTrue(res.success)
 
     def test_unique_values_fail(self):
-        req = unique_values("col3")
+        req = unique_values_for("col3")
         res = req.check(self.t)
         self.assertFalse(res.success)
         self.assertEqual(res.repeated, [(("m", ), 2)])
     
     def test_unique_values_together(self):
-        req = unique_values("col0", "col1")
+        req = unique_values_for("col0", "col1")
         res = req.check(self.t)
         self.assertTrue(res.success)
 
     def test_unique_values_together_fail(self):
-        req = unique_values("col3", "col4")
+        req = unique_values_for("col3", "col4")
         res = req.check(self.t)
         self.assertFalse(res.success)
         self.assertEqual(res.repeated, [(("m", "r"), 2)])
@@ -144,11 +144,11 @@ class MustHaveTests(unittest.TestCase):
     def test_column_missing(self):
         reqs = [
             values_in_set("colz", ["a"]),
-            some_value("colz"),
-            some_value("colz", "col0"),
+            some_value_for("colz"),
+            some_value_for("colz", "col0"),
             values_matching("colz", "abc"),
-            unique_values("colz"),
-            unique_values("colz", "col0"),
+            unique_values_for("colz"),
+            unique_values_for("colz", "col0"),
             ]
         for req in reqs:
             res = req.check(self.t)
