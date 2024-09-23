@@ -48,6 +48,10 @@ class Table:
         rows = csv.reader(f, **csv_reader_args)
         colnames = next(rows)
         return cls(colnames, rows, null_values)
+    
+    @classmethod
+    def from_data(cls, data, null_values=default_null_values):
+        return cls(data.keys(), list(zip(*[data[col] for col in data.keys()])), null_values)
 
 def is_stringy(x, can_be_none):
     if x is None:
