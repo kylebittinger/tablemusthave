@@ -36,6 +36,9 @@ class Table:
 
     def colnames(self):
         return list(self.data.keys())
+    
+    def normal_colnames(self):
+        return {normalize_name(c): c for c in self.colnames()}
 
     def get(self, colname):
         return self.data.get(colname)
@@ -58,3 +61,6 @@ def is_stringy(x, can_be_none):
         return can_be_none
     else:
         return isinstance(x, str)
+
+def normalize_name(name):
+    return ''.join(ch for ch in name.strip().lower() if ch.isalnum()) if name else ""

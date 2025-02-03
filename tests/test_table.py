@@ -62,6 +62,12 @@ class MustHaveTests(unittest.TestCase):
         self.assertFalse(res.success)
         self.assertEqual(res.missing, ["zzz"])
 
+    def test_columns_named_fix(self):
+        req = columns_named(["Col_1"])
+        self.assertFalse(req.check(self.t).success)
+        req.fix(self.t)
+        self.assertIn("Col_1", self.t)
+
     def test_columns_matching(self):
         req = columns_matching("^col\\d$")
         res = req.check(self.t)
@@ -84,6 +90,12 @@ class MustHaveTests(unittest.TestCase):
         res = req.check(self.t)
         self.assertFalse(res.success)
         self.assertEqual(res.not_allowed, ["g"])
+
+    def test_values_in_set_fix(self):
+        req = values_in_set("col0", ["A", "D_", "_g"])
+        self.assertFalse(req.check(self.t).success)
+        req.fix(self.t)
+        self.assertTrue(req.check(self.t).success)
 
     def test_some_value(self):
         req = some_value_for("col0")

@@ -1,5 +1,6 @@
 import collections
 import re
+from .table import normalize_name
 
 class MustHave:
     def __init__(self, *reqs):
@@ -19,6 +20,10 @@ class MustHave:
         for r in self.requirements:
             yield r, r.check(table)
 
+    def fix(self, table):
+        for r in self.requirements:
+            r.fix(table)
+
 class columns_named:
     def __init__(self, colnames):
         self.colnames = colnames
@@ -30,6 +35,12 @@ class columns_named:
     def check(self, t):
         missing = [c for c in self.colnames if c not in t]
         return must_have_result(missing=missing)
+    
+    def fix(self, t):
+        for c in self.colnames:
+            if c not in t:
+                if (old_colname := normalize_name(c)) in t.normal_colnames().keys():
+                    t.data[c] = t.data.pop(old_colname)
 
 class columns_matching:
     def __init__(self, pattern):
@@ -43,11 +54,15 @@ class columns_matching:
         not_matching = [
             c for c in t.colnames() if not matching(self.pattern, c)]
         return must_have_result(not_matching=not_matching)
+    
+    def fix(self, t):
+        pass
 
 class values_in_set:
     def __init__(self, colname, allowed):
         self.colname = colname
         self.allowed = allowed
+        self.normal_allowed = {normalize_name(a): a for a in allowed}
 
     def description(self):
         desc = "Values of '{0}' must be in list: {1}."
@@ -59,6 +74,20 @@ class values_in_set:
         vals = t.get(self.colname)
         not_allowed = [v for v in vals if v not in self.allowed]
         return must_have_result(not_allowed=not_allowed)
+    
+    def fix(self, t):
+        new_data = []
+        for v in t.data[self.colname]:
+            if v in self.allowed:
+                new_data.append(v)
+            elif (normalized := normalize_name(v)) in self.normal_allowed:
+                new_data.append(self.normal_allowed[normalized])
+            else:
+                new_data.append(v)
+
+        t.data[self.colname] = new_data
+        print(t.data)
+
 
 class some_value_for:
     def __init__(self, *colnames):
@@ -85,6 +114,9 @@ class some_value_for:
             idx for idx, vs in enumerate(vals)
             if all(vs[:-1]) and (not vs[-1])]
         return must_have_result(idxs=idxs)
+    
+    def fix(self, t):
+        pass
 
 class values_matching:
     def __init__(self, colname, pattern):
@@ -101,6 +133,9 @@ class values_matching:
         vals = t.get(self.colname)
         not_matching = [v for v in vals if not matching(self.pattern, v)]
         return must_have_result(not_matching=not_matching)
+    
+    def fix(self, t):
+        pass
 
 class unique_values_for:
     def __init__(self, *colnames):
@@ -124,6 +159,9 @@ class unique_values_for:
         value_cts = collections.Counter(vals)
         repeated = [(v, n) for v, n in value_cts.items() if n > 1]
         return must_have_result(repeated=repeated)
+    
+    def fix(self, t):
+        pass
 
 def matching(pattern, x):
     return (x is None) or (re.search(pattern, x) is not None)
