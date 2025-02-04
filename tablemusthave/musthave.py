@@ -43,8 +43,9 @@ class columns_named:
                     t.data[c] = t.data.pop(old_colname)
 
 class columns_matching:
-    def __init__(self, pattern):
+    def __init__(self, pattern, fix_fn = lambda t: t):
         self.pattern = pattern
+        self.fix_fn = fix_fn
 
     def description(self):
         desc = "All columns must match pattern '{0}'."
@@ -56,7 +57,8 @@ class columns_matching:
         return must_have_result(not_matching=not_matching)
     
     def fix(self, t):
-        pass
+        self.fix_fn(t)
+
 
 class values_in_set:
     def __init__(self, colname, allowed):
@@ -90,9 +92,10 @@ class values_in_set:
 
 
 class some_value_for:
-    def __init__(self, *colnames):
+    def __init__(self, *colnames, fix_fn = lambda t, c: t):
         self.colnames = list(colnames)
         assert(len(self.colnames) >= 1)
+        self.fix_fn = fix_fn
 
     def description(self):
         if len(self.colnames) == 1:
@@ -116,12 +119,13 @@ class some_value_for:
         return must_have_result(idxs=idxs)
     
     def fix(self, t):
-        pass
+        self.fix_fn(t, self.colnames)
 
 class values_matching:
-    def __init__(self, colname, pattern):
+    def __init__(self, colname, pattern, fix_fn = lambda t, c, p: t):
         self.colname = colname
         self.pattern = pattern
+        self.fix_fn = fix_fn
 
     def description(self):
         desc = "Values of '{0}' must match pattern '{1}'."
@@ -135,7 +139,7 @@ class values_matching:
         return must_have_result(not_matching=not_matching)
     
     def fix(self, t):
-        pass
+        self.fix_fn(t, self.colname, self.pattern)
 
 class unique_values_for:
     def __init__(self, *colnames):
