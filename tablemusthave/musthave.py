@@ -24,9 +24,32 @@ class MustHave:
         for r in self.requirements:
             r.fix(table)
 
+
+def fix_columns_named(t, colnames):
+    for c in colnames:
+        if c not in t:
+            if (old_colname := normalize_name(c)) in t.normal_colnames().keys():
+                t.data[c] = t.data.pop(t.normal_colnames()[old_colname])
+
+
+def fix_values_in_set(t, colname, allowed):
+    normal_allowed = {normalize_name(a): a for a in allowed}
+    new_data = []
+    for v in t.data[colname]:
+        if v in allowed:
+            new_data.append(v)
+        elif (normalized := normalize_name(v)) in normal_allowed:
+            new_data.append(normal_allowed[normalized])
+        else:
+            new_data.append(v)
+
+    t.data[colname] = new_data
+
+
 class columns_named:
-    def __init__(self, colnames):
+    def __init__(self, colnames, fix_fn = fix_columns_named):
         self.colnames = colnames
+        self.fix_fn = fix_fn
 
     def description(self):
         desc = "Must have columns {0}."
@@ -37,10 +60,7 @@ class columns_named:
         return must_have_result(missing=missing)
     
     def fix(self, t):
-        for c in self.colnames:
-            if c not in t:
-                if (old_colname := normalize_name(c)) in t.normal_colnames().keys():
-                    t.data[c] = t.data.pop(old_colname)
+        self.fix_fn(t, self.colnames)
 
 class columns_matching:
     def __init__(self, pattern, fix_fn = lambda t: t):
@@ -61,10 +81,10 @@ class columns_matching:
 
 
 class values_in_set:
-    def __init__(self, colname, allowed):
+    def __init__(self, colname, allowed, fix_fn = fix_values_in_set):
         self.colname = colname
         self.allowed = allowed
-        self.normal_allowed = {normalize_name(a): a for a in allowed}
+        self.fix_fn = fix_fn
 
     def description(self):
         desc = "Values of '{0}' must be in list: {1}."
@@ -78,17 +98,7 @@ class values_in_set:
         return must_have_result(not_allowed=not_allowed)
     
     def fix(self, t):
-        new_data = []
-        for v in t.data[self.colname]:
-            if v in self.allowed:
-                new_data.append(v)
-            elif (normalized := normalize_name(v)) in self.normal_allowed:
-                new_data.append(self.normal_allowed[normalized])
-            else:
-                new_data.append(v)
-
-        t.data[self.colname] = new_data
-        print(t.data)
+        self.fix_fn(t, self.colname, self.allowed)
 
 
 class some_value_for:
@@ -142,9 +152,10 @@ class values_matching:
         self.fix_fn(t, self.colname, self.pattern)
 
 class unique_values_for:
-    def __init__(self, *colnames):
+    def __init__(self, *colnames, fix_fn = lambda t: t):
         self.colnames = list(colnames)
         assert(len(self.colnames) >= 1)
+        self.fix_fn = fix_fn
 
     def description(self):
         if len(self.colnames) == 1:
@@ -165,7 +176,7 @@ class unique_values_for:
         return must_have_result(repeated=repeated)
     
     def fix(self, t):
-        pass
+        self.fix_fn(t)
 
 def matching(pattern, x):
     return (x is None) or (re.search(pattern, x) is not None)
