@@ -8,9 +8,7 @@ class TableTests(unittest.TestCase):
         self.t = Table(table1_cols, table1_vals)
 
     def test_column_names(self):
-        self.assertEqual(
-            self.t.colnames(),
-            ["col0", "col1", "col2", "col3", "col4"])
+        self.assertEqual(self.t.colnames(), ["col0", "col1", "col2", "col3", "col4"])
 
     def test_vals_for(self):
         self.assertEqual(self.t.get("col1"), ["b", None, "h"])
@@ -29,7 +27,7 @@ class TableTests(unittest.TestCase):
         self.assertEqual(t.get("b"), ["2", "3"])
 
     def test_from_csv_nulls(self):
-        t = Table.from_csv(["a,b", "1,2", "NA,3"], null_values = ["3"])
+        t = Table.from_csv(["a,b", "1,2", "NA,3"], null_values=["3"])
         self.assertEqual(t.get("a"), ["1", "NA"])
         self.assertEqual(t.get("b"), ["2", None])
 
