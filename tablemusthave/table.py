@@ -54,6 +54,15 @@ class Table:
     
     @classmethod
     def from_data(cls, data, null_values=default_null_values):
+        """Read a dictionary into the Table format.
+
+        Args:
+            data (dict[str, str | None]): A dictionary with column names as keys and lists of values as values.
+            null_values (iterable, optional): Null values to recognize. Defaults to default_null_values.
+
+        Returns:
+            Table: A Table object with the column-wise data from the dictionary converted into Table's row-wise format.
+        """
         return cls(data.keys(), list(zip(*[data[col] for col in data.keys()])), null_values)
 
 def is_stringy(x, can_be_none):
