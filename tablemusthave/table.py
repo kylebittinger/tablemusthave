@@ -36,6 +36,9 @@ class Table:
 
     def colnames(self):
         return list(self.data.keys())
+    
+    def normal_colnames(self):
+        return {normalize_name(c): c for c in self.colnames()}
 
     def get(self, colname):
         return self.data.get(colname)
@@ -48,9 +51,25 @@ class Table:
         rows = csv.reader(f, **csv_reader_args)
         colnames = next(rows)
         return cls(colnames, rows, null_values)
+    
+    @classmethod
+    def from_data(cls, data, null_values=default_null_values):
+        """Read a dictionary into the Table format.
+
+        Args:
+            data (dict[str, str | None]): A dictionary with column names as keys and lists of values as values.
+            null_values (iterable, optional): Null values to recognize. Defaults to default_null_values.
+
+        Returns:
+            Table: A Table object with the column-wise data from the dictionary converted into Table's row-wise format.
+        """
+        return cls(data.keys(), list(zip(*[data[col] for col in data.keys()])), null_values)
 
 def is_stringy(x, can_be_none):
     if x is None:
         return can_be_none
     else:
         return isinstance(x, str)
+
+def normalize_name(name):
+    return ''.join(ch for ch in name.strip().lower() if ch.isalnum()) if name else ""
