@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="tablemusthave",
-    version="0.0.1",
+    version="0.0.2",
     author="Kyle Bittinger",
     author_email="kylebittinger@gmail.com",
     description="Check requirements for tables",
