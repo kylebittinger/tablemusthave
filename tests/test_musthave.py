@@ -1,6 +1,14 @@
 import unittest
-from tablemusthave.musthave import *
-from tablemusthave.table import *
+from tablemusthave.musthave import (
+    columns_named,
+    columns_matching,
+    values_in_set,
+    values_matching,
+    some_value_for,
+    unique_values_for,
+    StillNeeds,
+)
+from tablemusthave.table import Table
 from . import table1_cols, table1_vals
 
 
@@ -97,8 +105,8 @@ class MustHaveTests(unittest.TestCase):
         req = unique_values_for("col3")
         res = req.check(self.t)
         self.assertFalse(res.success)
-        self.assertEqual(res.repeated, [(("m", ), 2)])
-    
+        self.assertEqual(res.repeated, [(("m",), 2)])
+
     def test_unique_values_together(self):
         req = unique_values_for("col0", "col1")
         res = req.check(self.t)
@@ -118,7 +126,7 @@ class MustHaveTests(unittest.TestCase):
             values_matching("colz", "abc"),
             unique_values_for("colz"),
             unique_values_for("colz", "col0"),
-            ]
+        ]
         for req in reqs:
             res = req.check(self.t)
             # success is None if the column is missing

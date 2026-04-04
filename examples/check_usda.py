@@ -1,11 +1,22 @@
-#import tablemusthave
-from tablemusthave import *
+from tablemusthave import (
+    Table,
+    MustHave,
+    columns_named,
+    columns_matching,
+    values_matching,
+    unique_values_for,
+    some_value_for,
+)
 from pathlib import Path
 
 chop_mandatory = [
-        "SampleID", "SampleType", "reverse_barcode_plate",
-        "reverse_barcode_location", "forward_barcode_plate",
-        "forward_barcode_location", "flow_cell_id",
+    "SampleID",
+    "SampleType",
+    "reverse_barcode_plate",
+    "reverse_barcode_location",
+    "forward_barcode_plate",
+    "forward_barcode_location",
+    "flow_cell_id",
 ]
 
 specification = MustHave(
@@ -17,12 +28,14 @@ specification = MustHave(
     unique_values_for("SampleID"),
     values_matching("reverse_barcode_location", "^[A-H][0-9]{2}$"),
     unique_values_for(
-        "reverse_barcode_location", "reverse_barcode_plate",
-        "forward_barcode_location", "forward_barcode_plate",
+        "reverse_barcode_location",
+        "reverse_barcode_plate",
+        "forward_barcode_location",
+        "forward_barcode_plate",
     ),
     values_matching("forward_barcode_location", "^[A-H][0-9]{2}$"),
     some_value_for("SubjectID", "HostSpecies"),
-    )
+)
 specification.extend(some_value_for(c) for c in chop_mandatory)
 
 for d in specification.descriptions():
@@ -30,7 +43,7 @@ for d in specification.descriptions():
 print()
 
 csv_fp = Path(__file__).resolve().parent / "usda21.csv"
-with open(csv_fp, newline='') as f:
+with open(csv_fp, newline="") as f:
     t = Table.from_csv(f)
 
 for req, res in specification.check(t):
