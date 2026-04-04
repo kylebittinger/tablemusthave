@@ -29,7 +29,8 @@ class MustHave:
 def fix_columns_named(t, colnames):
     for c in colnames:
         if c not in t:
-            if (old_colname := normalize_name(c)) in t.normal_colnames().keys():
+            old_colname = normalize_name(c)
+            if old_colname in t.normal_colnames().keys():
                 t.data[c] = t.data.pop(t.normal_colnames()[old_colname])
 
 
@@ -74,7 +75,9 @@ class columns_matching:
         return desc.format(self.pattern)
 
     def check(self, t):
-        not_matching = [c for c in t.colnames() if not matching(self.pattern, c)]
+        not_matching = [
+            c for c in t.colnames() if not matching(self.pattern, c)
+        ]
         return must_have_result(not_matching=not_matching)
 
     def fix(self, t):
@@ -124,7 +127,9 @@ class some_value_for:
         if missing:
             return DoesntApply(*missing)
         vals = zip(*(t.get(c) for c in self.colnames))
-        idxs = [idx for idx, vs in enumerate(vals) if all(vs[:-1]) and (not vs[-1])]
+        idxs = [
+            idx for idx, vs in enumerate(vals) if all(vs[:-1]) and (not vs[-1])
+        ]
         return must_have_result(idxs=idxs)
 
     def fix(self, t):

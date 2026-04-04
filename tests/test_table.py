@@ -1,5 +1,5 @@
 import unittest
-from tablemusthave.table import *
+from tablemusthave.table import Table, normalize_name
 from . import table1_cols, table1_vals
 
 
@@ -8,7 +8,10 @@ class TableTests(unittest.TestCase):
         self.t = Table(table1_cols, table1_vals)
 
     def test_column_names(self):
-        self.assertEqual(self.t.colnames(), ["col0", "col1", "col2", "col3", "col4"])
+        self.assertEqual(
+            self.t.colnames(),
+            ["col0", "col1", "col2", "col3", "col4"],
+        )
 
     def test_vals_for(self):
         self.assertEqual(self.t.get("col1"), ["b", None, "h"])

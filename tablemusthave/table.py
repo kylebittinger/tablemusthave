@@ -18,9 +18,16 @@ default_null_values = frozenset(
 
 
 class Table:
-    def __init__(self, colnames, values_by_row, null_values=default_null_values):
+    def __init__(
+            self,
+            colnames,
+            values_by_row,
+            null_values=default_null_values,
+    ):
         colnames = list(colnames)
-        values_by_column = list(map(list, itertools.zip_longest(*values_by_row)))
+        values_by_column = list(
+            map(list, itertools.zip_longest(*values_by_row))
+        )
 
         if not all(is_stringy(c, False) for c in colnames):
             msg = "Expected column names to be strings. Saw {0}"
@@ -38,7 +45,9 @@ class Table:
 
         self.data = {}
         for colname, vs in zip(colnames, values_by_column):
-            self.data[colname] = [v if v not in null_values else None for v in vs]
+            self.data[colname] = [
+                v if v not in null_values else None for v in vs
+            ]
 
     def colnames(self):
         return list(self.data.keys())
@@ -63,14 +72,19 @@ class Table:
         """Read a dictionary into the Table format.
 
         Args:
-            data (dict[str, str | None]): A dictionary with column names as keys and lists of values as values.
-            null_values (iterable, optional): Null values to recognize. Defaults to default_null_values.
+            data (dict[str, str | None]): A dictionary with column names as
+              keys and lists of values as values.
+            null_values (iterable, optional): Null values to recognize.
+              Defaults to default_null_values.
 
         Returns:
-            Table: A Table object with the column-wise data from the dictionary converted into Table's row-wise format.
+            Table: A Table object with the column-wise data from the
+              dictionary converted into Table's row-wise format.
         """
         return cls(
-            data.keys(), list(zip(*[data[col] for col in data.keys()])), null_values
+            data.keys(),
+            list(zip(*[data[col] for col in data.keys()])),
+            null_values
         )
 
 
@@ -82,4 +96,6 @@ def is_stringy(x, can_be_none):
 
 
 def normalize_name(name):
-    return "".join(ch for ch in name.strip().lower() if ch.isalnum()) if name else ""
+    if not name:
+        return ""
+    return "".join(ch for ch in name.strip().lower() if ch.isalnum())

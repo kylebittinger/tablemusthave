@@ -1,5 +1,12 @@
-# import tablemusthave
-from tablemusthave import *
+from tablemusthave import (
+    Table,
+    MustHave,
+    columns_named,
+    columns_matching,
+    values_matching,
+    unique_values_for,
+    some_value_for,
+)
 from pathlib import Path
 
 chop_mandatory = [
